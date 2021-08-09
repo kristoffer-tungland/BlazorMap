@@ -1,0 +1,97 @@
+﻿@page "/Map"
+@using BlazorMap.Services
+@using BlazorMap.Models
+
+<h1>Map</h1>
+
+<button @onclick="AddFeature">Add feature</button>
+<button @onclick="UpdateFeatureLocation">Update location</button>
+
+<div id="map" class="map"><div id="popup"></div></div>
+
+<div>@feature?.Name</div>
+<div>@feature?.Id</div>
+<div>@property</div>
+
+
+@code{
+    [Inject] MapService MapService { get; set; }
+
+    internal Feature feature;
+    internal string property;
+
+    protected override Task OnInitializedAsync()
+    {
+        MapService.SetOnPointClickAction(OnPointClick);
+        return base.OnInitializedAsync();
+    }
+
+    private void OnPointClick(Feature feature)
+    {
+        this.feature = feature;
+
+        property = feature.Properties["Length"];
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var args = new InitializeMapArgs
+        {
+            Lon = 5.5235,
+            Lat = 60.0457,
+            Zoom = 8
+        };
+
+        if (firstRender)
+        {
+            await MapService.Initialize(args);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    internal async Task AddFeature()
+    {
+        var args = new AddIconFeatureArgs
+        {
+            Name = "Ella",
+            Lon = 5.5235,
+            Lat = 60.0457,
+            ImageSource = "data/sailboat.png"
+        };
+
+        args.Properties.Add("Length", "343");
+        args.Properties.Add("MMSI", "257624090");
+
+        feature = await MapService.AddIconFeature(args);
+    }
+
+    internal async Task UpdateFeature()
+    {
+        var args = new UpdateFeatureArgs
+        {
+            Id = feature.Id,
+            Direction = feature.Direction,
+        };
+
+        args.Direction = 0.785398163;
+
+        await MapService.UpdateFeature(args);
+    }
+
+    internal async Task UpdateFeatureLocation()
+    {
+        var args = new UpdateFeatureLocationArgs
+        {
+            Id = feature.Id,
+            Lon = 5.3235,
+            Lat = 61.0457,
+            Direction = 0.785398163,
+            CenterView = true
+        };
+
+        await MapService.UpdateFeatureLocation(args);
+    }
+}
