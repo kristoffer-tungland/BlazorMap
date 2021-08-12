@@ -4,8 +4,10 @@
 
 <h1>Map</h1>
 
-<button @onclick="AddFeature">Add feature</button>
+<button @onclick="AddFeature">Add</button>
 <button @onclick="UpdateFeatureLocation">Update location</button>
+<button @onclick="RemoveFeature">Remove</button>
+<button @onclick="UpdateFeature">Update</button>
 
 <div id="map" class="map"><div id="popup"></div></div>
 
@@ -17,6 +19,8 @@
 @code{
     [Inject] MapService MapService { get; set; }
 
+
+    internal Layer layer;
     internal Feature feature;
     internal string property;
 
@@ -47,6 +51,8 @@
         if (firstRender)
         {
             await MapService.Initialize(args);
+
+            layer = await MapService.AddLayer(new AddLayerArgs());
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -59,7 +65,8 @@
             Name = "Ella",
             Lon = 5.5235,
             Lat = 60.0457,
-            ImageSource = "data/sailboat.png"
+            ImageSource = "data/sailboat.png",
+            LayerId = layer.Id
         };
 
         args.Properties.Add("Length", "343");
@@ -68,24 +75,31 @@
         feature = await MapService.AddIconFeature(args);
     }
 
+    internal async Task RemoveFeature()
+    {
+        var args = new RemoveFeatureArgs(feature.LayerId, feature.Id);
+
+        await MapService.RemoveFeature(args);
+
+        feature = default;
+    }
+
     internal async Task UpdateFeature()
     {
-        var args = new UpdateFeatureArgs
+        var args = new UpdateFeaturePropertiesArgs(feature.LayerId, feature.Id)
         {
-            Id = feature.Id,
-            Direction = feature.Direction,
+            Properties = feature.Properties
         };
 
-        args.Direction = 0.785398163;
+        args.Properties["Length"] = "7";
 
-        await MapService.UpdateFeature(args);
+        await MapService.UpdateFeatureProperties(args);
     }
 
     internal async Task UpdateFeatureLocation()
     {
-        var args = new UpdateFeatureLocationArgs
+        var args = new UpdateFeatureLocationArgs(feature.LayerId, feature.Id)
         {
-            Id = feature.Id,
             Lon = 5.3235,
             Lat = 61.0457,
             Direction = 0.785398163,

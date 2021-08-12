@@ -21,7 +21,7 @@
     <Folder Include="wwwroot\js\" />
     <Folder Include="NpmJS\" />
     <Folder Include="NpmJS\src\" />
-    <Folder Include="Helpers\" />
+    <Folder Include="Services\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
