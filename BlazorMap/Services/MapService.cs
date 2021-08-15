@@ -100,6 +100,7 @@ namespace BlazorMap.Services
         public double Lon { get; set; }
         public double Lat { get; set; }
         public int Zoom { get; set; } = 4;
+        public List<TileLayer> TileLayers { get; set; } = new ();
     }
 
     public class UpdateFeatureLocationArgs

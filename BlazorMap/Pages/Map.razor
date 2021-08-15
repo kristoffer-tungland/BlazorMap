@@ -4,8 +4,23 @@
 
 <h1>Map</h1>
 
-<button @onclick="AddFeature">Add</button>
-<button @onclick="UpdateFeatureLocation">Update location</button>
+<p>
+    <label for="name">Name</label>
+    <input id="name" type="text" @bind="@feature.Name" />
+    <button @onclick="AddFeature">Add</button>
+</p>
+<p>
+    <label for="lat">Lat</label>
+    <input id="lat" type="text" @bind="@feature.Lat" />
+    <label for="lon">Lon</label>
+    <input id="lon" type="text" @bind="@feature.Lon" />
+    <label for="direction">Direction</label>
+    <input id="direction" type="text" @bind="@feature.Direction" />
+    <label for="centerView">Center View</label>
+    <input id="centerView" type="checkbox" @bind="@centerView" />
+    <button @onclick="UpdateFeatureLocation">Update location</button>
+
+</p>
 <button @onclick="RemoveFeature">Remove</button>
 <button @onclick="UpdateFeature">Update</button>
 
@@ -19,13 +34,20 @@
 @code{
     [Inject] MapService MapService { get; set; }
 
-
+    internal bool centerView;
     internal Layer layer;
     internal Feature feature;
     internal string property;
 
     protected override Task OnInitializedAsync()
     {
+        feature = new Feature
+        {
+            Name = "Ella2",
+            Lon = 5.5235,
+            Lat = 60.0457,
+        };
+
         MapService.SetOnPointClickAction(OnPointClick);
         return base.OnInitializedAsync();
     }
@@ -45,7 +67,12 @@
         {
             Lon = 5.5235,
             Lat = 60.0457,
-            Zoom = 8
+            Zoom = 8,
+            TileLayers = new List<TileLayer>
+            {
+                new TileLayer{ Source = new OSM{ Url = @"https://{a-c}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=" + "your api key"}},
+                new TileLayer{ Source = new OSM{ Url = "https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png", Opaque = false}},
+            }
         };
 
         if (firstRender)
@@ -62,9 +89,9 @@
     {
         var args = new AddIconFeatureArgs
         {
-            Name = "Ella",
-            Lon = 5.5235,
-            Lat = 60.0457,
+            Name = feature.Name,
+            Lon = feature.Lon,
+            Lat = feature.Lat,
             ImageSource = "data/sailboat.png",
             LayerId = layer.Id
         };
@@ -81,7 +108,7 @@
 
         await MapService.RemoveFeature(args);
 
-        feature = default;
+        feature = new Feature();
     }
 
     internal async Task UpdateFeature()
@@ -100,10 +127,10 @@
     {
         var args = new UpdateFeatureLocationArgs(feature.LayerId, feature.Id)
         {
-            Lon = 5.3235,
-            Lat = 61.0457,
-            Direction = 0.785398163,
-            CenterView = true
+            Lon = feature.Lon,
+            Lat = feature.Lat,
+            Direction = feature.Direction,
+            CenterView = centerView
         };
 
         await MapService.UpdateFeatureLocation(args);

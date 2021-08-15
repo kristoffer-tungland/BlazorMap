@@ -10,13 +10,17 @@ import VectorSource from 'ol/source/Vector';
 import View from 'ol/View';
 import { Icon, Style } from 'ol/style';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-import { fromLonLat } from 'ol/proj'
+import { fromLonLat, toLonLat } from 'ol/proj'
 import { getUid } from 'ol/util';
 
 var map;
 
 window.mapService = {
     Initialize: function (dotNetMapService, args) {
+
+        var layers = [];
+
+        args.TileLayers
 
         const openCycleMapLayer = new TileLayer({
             source: new OSM({
@@ -26,7 +30,7 @@ window.mapService = {
                 //],
                 url:
                     'https://{a-c}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png' +
-                    '?apikey=243aa9088c0d421cb8e0e2640b466cb0',
+                    '?apikey=your api key',
             }),
         });
 
@@ -203,11 +207,17 @@ window.mapService = {
 };
 
 function getDotNetFeature(feature) {
+
+    var coordinates = toLonLat(feature.getGeometry().getCoordinates(coordinates));
+
     return {
         Id: feature.getId(),
         LayerId: feature.get('layerId'),
         Name: feature.get('name'),
-        Properties: feature.get('properties')
+        Properties: feature.get('properties'),
+        Lat: coordinates[1],
+        Lon: coordinates[0],
+        Direction: feature.get('direction')
     }
 };
 
