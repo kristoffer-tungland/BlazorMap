@@ -20,36 +20,25 @@ window.mapService = {
 
         var layers = [];
 
-        args.TileLayers
+        args.tileLayers.forEach((x) => {
+            var tileLayer = new TileLayer({
+                source: new OSM({
+                    //attributions: [
+                    //    'All maps © <a href="https://www.opencyclemap.org/">OpenCycleMap</a>',
+                    //    ATTRIBUTION,
+                    //],
+                    url: x.url,
+                })
+            });
 
-        const openCycleMapLayer = new TileLayer({
-            source: new OSM({
-                //attributions: [
-                //    'All maps © <a href="https://www.opencyclemap.org/">OpenCycleMap</a>',
-                //    ATTRIBUTION,
-                //],
-                url:
-                    'https://{a-c}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png' +
-                    '?apikey=your api key',
-            }),
-        });
-
-        const openSeaMapLayer = new TileLayer({
-            source: new OSM({
-                //attributions: [
-                //    'All maps © <a href="https://www.openseamap.org/">OpenSeaMap</a>',
-                //    ATTRIBUTION,
-                //],
-                opaque: false,
-                url: 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
-            }),
+            layers.push(tileLayer);
         });
 
         map = new Map({
             target: 'map',
-            layers: [openCycleMapLayer, openSeaMapLayer],
+            layers: layers,
             view: new View({
-                center: ol.proj.fromLonLat([args.lon, args.lat]),
+                center: fromLonLat([args.lon, args.lat]),
                 zoom: args.zoom
             }),
         });
